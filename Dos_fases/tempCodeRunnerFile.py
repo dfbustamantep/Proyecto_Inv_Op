@@ -1,2 +1,1 @@
-
-    {"x1": 1, "x2": 2, "sign": "<=", "value": 4}
+print("Matriz actualizada:")
