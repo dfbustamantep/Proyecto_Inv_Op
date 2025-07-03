@@ -1,19 +1,19 @@
-def get_S_columns(z):
-    keys = list(z.keys())
+def get_S_columns(func_z):
+    keys = list(func_z.keys())
     S_columns = []
     for j in range(len(keys)):
         if keys[j].startswith("S"):
             S_columns.append(j)
     return S_columns
 
-def get_estado_primal(S_column,matriz,z,r):
+def get_estado_primal(S_column,matriz,func_z,z_fase1):
     s_a = []
-    keys = list(r.keys())
+    keys = list(z_fase1.keys())
     
     for k in keys:
         if k.startswith("x"):
             continue
-        z[k] = 0
+        func_z[k] = 0
 
     for i in range(len(matriz)):
         fila = {}
@@ -23,15 +23,15 @@ def get_estado_primal(S_column,matriz,z,r):
         fila["sign"] = "=="
         fila["value"] = matriz[i][-2]
         s_a.append(fila)
-    return s_a,z
+    return s_a,func_z
 
 import sys
 from fractions import Fraction
 
-def crearMatriz(z,s_a):
+def crearMatriz(func_z,s_a):
     n = len(s_a)
-    m = len(z)
-    keys = list(z.keys())
+    m = len(func_z)
+    keys = list(func_z.keys())
     matriz = []
     for i in range(n):  # 각 제약조건 (행)
         keys_s = list(s_a[i].keys())
@@ -49,11 +49,11 @@ def crearMatriz(z,s_a):
 
         matriz.append(fila_vals)
 
-    fila_pivote, columna_pivote, zj_cj = pivotear(z,matriz,n,m)
+    fila_pivote, columna_pivote, zj_cj = pivotear(func_z,matriz,n,m)
 
     return matriz,fila_pivote,columna_pivote,zj_cj
 
-def actualizar_matriz(matriz, fila_p, columna_p, z):
+def actualizar_matriz(matriz, fila_p, columna_p, func_z):
     puntos = puntos_coeficientes(matriz, columna_p)
     ##if(puntos[fila_p]==)
     n = len(matriz)
@@ -64,7 +64,7 @@ def actualizar_matriz(matriz, fila_p, columna_p, z):
         valor = Fraction(matriz[fila_p][j], puntos[fila_p])
         fila_pivote_normalizada.append(valor)
     
-    xb = list(z.keys())[columna_p]
+    xb = list(func_z.keys())[columna_p]
     fila_pivote_normalizada.append(xb)
     matriz_nuevo = [[0 for _ in range(m-1)] for _ in range(n)]
 
@@ -83,11 +83,11 @@ def actualizar_matriz(matriz, fila_p, columna_p, z):
         fila_nueva.append(xb)
         matriz_nuevo[i] = fila_nueva
 
-    fila_pivote, columna_pivote,zj_cj = pivotear(z,matriz_nuevo,n,m-2)
+    fila_pivote, columna_pivote,zj_cj = pivotear(func_z,matriz_nuevo,n,m-2)
 
     return matriz_nuevo,fila_pivote,columna_pivote,zj_cj
 
-def pivotear(z,matriz,n,m):
+def pivotear(func_z,matriz,n,m):
     # print("prueba matriz",matriz[0])
     # print("prueba matriz",matriz[1])
     # print("prueba matriz",matriz[2])
@@ -101,16 +101,16 @@ def pivotear(z,matriz,n,m):
     # print("prueba matriz",matriz[10])
     # print("prueba matriz",matriz[11])
     # print("prueba matriz",matriz[12])
-    keys = list(z.keys())
+    keys = list(func_z.keys())
     columna_pivote = -1
     max_val = -1000
     zj_cj = []
     for j in range(m):
         zj = 0
-        cj = z[keys[j]]
+        cj = func_z[keys[j]]
         for i in range(n):
             xb = matriz[i][-1]
-            cx = z[xb]
+            cx = func_z[xb]
             zj +=matriz[i][j] * cx
         
         zj_cj.append(zj-cj)
@@ -135,3 +135,17 @@ def puntos_coeficientes(matriz, columna_p):
     for i in range(len(matriz)):
         puntos.append(matriz[i][columna_p])
     return puntos
+
+def get_Z(matriz,func_z):
+    r = 0 
+    for fila in matriz:
+        cx = func_z[fila[-1]]
+        bi = fila[-2]
+        r += cx*bi
+    return r
+
+def get_Cx(matriz,func_z):
+    cx = [] 
+    for fila in matriz:
+        cx.append(func_z[fila[-1]])
+    return cx
