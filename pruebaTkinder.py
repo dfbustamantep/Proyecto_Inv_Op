@@ -9,9 +9,11 @@ class SimplexApp(Toplevel):
     def __init__(self, master,tipo_optimizacion, num_restricciones=0, num_variables=0):
         super().__init__(master)
         self.master = master
-        self.tipo_optimizacion=tipo_optimizacion
+        self.objetivo=tipo_optimizacion
         self.title("Método Simplex - Dos Fases")
-
+        frame_objetivo = tk.LabelFrame(self, text=f"Tipo: {self.objetivo.capitalize()}", font=("Arial", 10), bg="#ffffff")
+        frame_objetivo.pack(fill="x", padx=10, pady=5)
+        
         # --- Entrada de la función objetivo ---
         frame_obj = ttk.LabelFrame(self, text="Función Objetivo (ej: 4x1 + 1x2)")
         frame_obj.pack(fill="x", padx=10, pady=5)
@@ -25,11 +27,11 @@ class SimplexApp(Toplevel):
         self.text_restricciones.pack(fill="both", padx=5, pady=5)
 
         # --- Selección de objetivo ---
-        frame_objetivo = ttk.LabelFrame(self, text="Tipo de Optimización")
-        frame_objetivo.pack(fill="x", padx=10, pady=5)
-        self.objetivo = tk.StringVar(value="minimizar")
-        ttk.Radiobutton(frame_objetivo, text="Minimizar", variable=self.objetivo, value="minimizar").pack(side="left", padx=10)
-        ttk.Radiobutton(frame_objetivo, text="Maximizar", variable=self.objetivo, value="maximizar").pack(side="left", padx=10)
+        #frame_objetivo = ttk.LabelFrame(self, text="Tipo de Optimización")
+        #frame_objetivo.pack(fill="x", padx=10, pady=5)
+        #self.objetivo = tk.StringVar(value="minimizar")
+        #ttk.Radiobutton(frame_objetivo, text="Minimizar", variable=self.objetivo, value="minimizar").pack(side="left", padx=10)
+        #ttk.Radiobutton(frame_objetivo, text="Maximizar", variable=self.objetivo, value="maximizar").pack(side="left", padx=10)
 
         # --- Botón de ejecución ---
         self.btn_start = ttk.Button(self, text="Ejecutar Simplex", command=self.ejecutar_simplex)
@@ -89,7 +91,7 @@ class SimplexApp(Toplevel):
             sin_dos_fases = all(r["sign"] == "<=" for r in restricciones)
 
             if sin_dos_fases:
-                if self.objetivo.get() == "maximizar":
+                if self.objetivo == "maximizar":
                     prN.maximizar(func_z, restricciones, imprimir=self.imprimir)
                 else:
                     prN.minimizar(func_z, restricciones, imprimir=self.imprimir)
@@ -98,7 +100,7 @@ class SimplexApp(Toplevel):
                 func_z_fase1, matriz = mostrar_fase1(restricciones, imprimir=self.imprimir)
 
                 self.imprimir("✅ Fase 2")
-                if self.objetivo.get() == "minimizar":
+                if self.objetivo == "minimizar":
                     self.imprimir("minimizacion")
                     minimizar(func_z_fase1, func_z, matriz, imprimir=self.imprimir)
                 else:
