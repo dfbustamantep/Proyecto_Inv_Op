@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from grafico import graficar
-from pruebaTkinder import SimplexVentana
+from pruebaTkinder import SimplexApp
 
 class VentanaPrincipal(Tk):
     def __init__(self):
@@ -74,7 +74,7 @@ class VentanaPrincipal(Tk):
         VentanaDosFases(self,tipo_optimizacion,num_restricciones,num_variables) """
         tipo_optimizacion = self.tipo_optimizacion.get()
         print(f"Abriendo Método Dos fases... {tipo_optimizacion}")
-        SimplexVentana(self, tipo_optimizacion)
+        SimplexApp(self, tipo_optimizacion)
 
     def solicitar_restricciones(self):
         """Solicita el numero de restricciones antes de abrir el metodo grafico"""
