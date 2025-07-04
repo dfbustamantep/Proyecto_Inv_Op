@@ -1,31 +1,15 @@
-def estado_primal(s):
-    cntR = 0
+def estado_primal(s,func_z_orig):    
     cntH = 0
-    cntS = 0
-    func_z = {}
+
+    func_z = func_z_orig
 
     for temp in s:
-        if temp["sign"] == "==":
-            cntR += 1
-            func_z[f"R{cntR}"] = 1
-            temp[f"R{cntR}"] = 1
-        elif temp["sign"] == ">=":
-            cntR += 1
-            cntS += 1
-            func_z[f"R{cntR}"] = 1
-            temp[f"R{cntR}"] = 1
-            temp[f"S{cntS}"] = -1
-            temp["sign"] = "=="
-        else:
+        if temp["sign"] == "<=":
             cntH += 1
             temp[f"H{cntH}"] = 1
-            temp["sign"] = "=="
-        for key in temp:
-            if key == "value" or key == "sign":
-                continue
-            func_z[key] = 0
-            if "R" in key:
-                func_z[key] = 1
+            temp["sign"] = "=="     
+            func_z[f"H{cntH}"] = 0
+
     func_z_sorted = dict(sorted(func_z.items(), key=lambda item: sort_key(item[0])))
 
     return s, func_z_sorted
@@ -41,7 +25,7 @@ def sort_key(k):
 import sys
 from fractions import Fraction
 
-def crearMatriz(func_z,s_a):
+def crearMatriz(func_z,s_a,objetivo):
     n = len(s_a)
     m = len(func_z)
     keys = list(func_z.keys())
@@ -54,26 +38,28 @@ def crearMatriz(func_z,s_a):
         
         fila_vals.append(s_a[i]["value"])
         for k in keys_s:
-            if k.startswith("R"):
+            if k.startswith(("H")) and not isinstance(fila_vals[-1], str):
                 fila_vals.append(k)
-        for k in keys_s:
-            if k.startswith("H"):
-                fila_vals.append(k)
-        matriz.append(fila_vals)
 
-    fila_pivote, columna_pivote, zj_cj = pivotear(func_z,matriz,n,m)
+        matriz.append(fila_vals)
+        # print(matriz)
+    if objetivo == "minimizar":
+        fila_pivote, columna_pivote, zj_cj = pivotearMin(func_z,matriz,n,m)
+    else:
+        fila_pivote, columna_pivote, zj_cj = pivotearMax(func_z,matriz,n,m)
 
     return matriz,fila_pivote,columna_pivote,zj_cj
 
-def actualizar_matriz(matriz, fila_p, columna_p, func_z):
+def actualizar_matriz(matriz, fila_p, columna_p, func_z,objetivo):
     puntos = puntos_coeficientes(matriz, columna_p)
-
+    ##if(puntos[fila_p]==)
     n = len(matriz)
     m = len(matriz[0])
     # Normalizar fila pivote
     fila_pivote_normalizada = []
     for j in range(m-1):
-        valor = Fraction(matriz[fila_p][j], puntos[fila_p])
+        print(matriz[fila_p][j], puntos[fila_p])
+        valor = matriz[fila_p][j]/ puntos[fila_p]
         fila_pivote_normalizada.append(valor)
     
     xb = list(func_z.keys())[columna_p]
@@ -91,18 +77,21 @@ def actualizar_matriz(matriz, fila_p, columna_p, func_z):
         for j in range(m-1):
             valor = matriz[i][j] + puntos[i] * -1 * fila_pivote_normalizada[j]
             fila_nueva.append(valor)
-        xb = matriz[i][-1]
+        xb = matriz[i][-1] # xb de cada pila
         fila_nueva.append(xb)
         matriz_nuevo[i] = fila_nueva
-
-    fila_pivote, columna_pivote,zj_cj = pivotear(func_z,matriz_nuevo,n,m-2)
+    if objetivo == "minimizar":
+        fila_pivote, columna_pivote,zj_cj = pivotearMin(func_z,matriz_nuevo,n,m-2)
+    else:
+        fila_pivote, columna_pivote,zj_cj = pivotearMax(func_z,matriz_nuevo,n,m-2)
 
     return matriz_nuevo,fila_pivote,columna_pivote,zj_cj
 
-def pivotear(func_z,matriz,n,m):
+def pivotearMin(func_z,matriz,n,m):
+    # print("prueba matriz",matriz[0])
     keys = list(func_z.keys())
     columna_pivote = -1
-    max_val = 0
+    max_val = -1000
     zj_cj = []
     for j in range(m):
         all_zero = True
@@ -115,9 +104,43 @@ def pivotear(func_z,matriz,n,m):
             if matriz[i][j] != 0:
                 all_zero = False
         zj_cj.append(zj-cj)
-        if not all_zero and (zj - cj) > 0 and max_val<(zj-cj):
+        if not all_zero and zj-cj>0 and max_val<(zj-cj):
             max_val = zj - cj
-            columna_pivote = j
+            columna_pivote=j
+    
+    min_val = sys.float_info.max
+    fila_pivote = -1
+    if columna_pivote == -1:
+        return fila_pivote,columna_pivote,zj_cj
+    for i in range(n):
+        bi = matriz[i][-2]
+        xi = matriz[i][columna_pivote]
+        if xi>0 and min_val>(bi/xi):
+            min_val = bi/xi
+            fila_pivote = i
+    return fila_pivote,columna_pivote,zj_cj
+
+def pivotearMax(func_z,matriz,n,m):
+    
+    # print("prueba matriz",matriz[0])
+    keys = list(func_z.keys())
+    columna_pivote = -1
+    min_val = sys.float_info.max
+    zj_cj = []
+    for j in range(m):
+        all_zero = True
+        zj = 0
+        cj = func_z[keys[j]]
+        for i in range(n):
+            xb = matriz[i][-1]
+            cx = func_z[xb]
+            zj +=matriz[i][j] * cx
+            if matriz[i][j] != 0:
+                all_zero = False
+        zj_cj.append(zj-cj)
+        if not all_zero and (zj-cj) <0 and min_val>(zj-cj):
+            min_val = zj - cj
+            columna_pivote=j
     min_val = sys.float_info.max
     fila_pivote = -1
     if columna_pivote == -1:
@@ -137,12 +160,12 @@ def puntos_coeficientes(matriz, columna_p):
     return puntos
 
 def get_Z(matriz,func_z):
-    z = 0 
+    r = 0 
     for fila in matriz:
         cx = func_z[fila[-1]]
         bi = fila[-2]
-        z += cx*bi
-    return z
+        r += cx*bi
+    return r
 
 def get_Cx(matriz,func_z):
     cx = [] 

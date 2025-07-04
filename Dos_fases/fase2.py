@@ -28,7 +28,7 @@ def get_estado_primal(S_column,matriz,func_z,z_fase1):
 import sys
 from fractions import Fraction
 
-def crearMatriz(func_z,s_a):
+def crearMatriz(func_z,s_a,objetivo):
     n = len(s_a)
     m = len(func_z)
     keys = list(func_z.keys())
@@ -48,12 +48,14 @@ def crearMatriz(func_z,s_a):
                 fila_vals.append(k)
 
         matriz.append(fila_vals)
-
-    fila_pivote, columna_pivote, zj_cj = pivotear(func_z,matriz,n,m)
+    if objetivo == "minimizar":
+        fila_pivote, columna_pivote, zj_cj = pivotearMin(func_z,matriz,n,m)
+    else:
+        fila_pivote, columna_pivote, zj_cj = pivotearMax(func_z,matriz,n,m)
 
     return matriz,fila_pivote,columna_pivote,zj_cj
 
-def actualizar_matriz(matriz, fila_p, columna_p, func_z):
+def actualizar_matriz(matriz, fila_p, columna_p, func_z,objetivo):
     puntos = puntos_coeficientes(matriz, columna_p)
     ##if(puntos[fila_p]==)
     n = len(matriz)
@@ -82,40 +84,65 @@ def actualizar_matriz(matriz, fila_p, columna_p, func_z):
         xb = matriz[i][-1] # xb de cada pila
         fila_nueva.append(xb)
         matriz_nuevo[i] = fila_nueva
-
-    fila_pivote, columna_pivote,zj_cj = pivotear(func_z,matriz_nuevo,n,m-2)
+    if objetivo == "minimizar":
+        fila_pivote, columna_pivote,zj_cj = pivotearMin(func_z,matriz_nuevo,n,m-2)
+    else:
+        fila_pivote, columna_pivote,zj_cj = pivotearMax(func_z,matriz_nuevo,n,m-2)
 
     return matriz_nuevo,fila_pivote,columna_pivote,zj_cj
 
-def pivotear(func_z,matriz,n,m):
+def pivotearMin(func_z,matriz,n,m):
     # print("prueba matriz",matriz[0])
-    # print("prueba matriz",matriz[1])
-    # print("prueba matriz",matriz[2])
-    # print("prueba matriz",matriz[3])
-    # print("prueba matriz",matriz[4])
-    # print("prueba matriz",matriz[5])
-    # print("prueba matriz",matriz[6])
-    # print("prueba matriz",matriz[7])
-    # print("prueba matriz",matriz[8])
-    # print("prueba matriz",matriz[9])
-    # print("prueba matriz",matriz[10])
-    # print("prueba matriz",matriz[11])
-    # print("prueba matriz",matriz[12])
     keys = list(func_z.keys())
     columna_pivote = -1
     max_val = -1000
     zj_cj = []
     for j in range(m):
+        all_zero = True
         zj = 0
         cj = func_z[keys[j]]
         for i in range(n):
             xb = matriz[i][-1]
             cx = func_z[xb]
             zj +=matriz[i][j] * cx
-        
+            if matriz[i][j] != 0:
+                all_zero = False
         zj_cj.append(zj-cj)
-        if max_val<(zj-cj and zj-cj>0):
+        if not all_zero and zj-cj>0 and max_val<(zj-cj):
             max_val = zj - cj
+            columna_pivote=j
+    
+    min_val = sys.float_info.max
+    fila_pivote = -1
+    if columna_pivote == -1:
+        return fila_pivote,columna_pivote,zj_cj
+    for i in range(n):
+        bi = matriz[i][-2]
+        xi = matriz[i][columna_pivote]
+        if xi>0 and min_val>(bi/xi):
+            min_val = bi/xi
+            fila_pivote = i
+    return fila_pivote,columna_pivote,zj_cj
+
+def pivotearMax(func_z,matriz,n,m):
+    # print("prueba matriz",matriz[0])
+    keys = list(func_z.keys())
+    columna_pivote = -1
+    min_val = sys.float_info.max
+    zj_cj = []
+    for j in range(m):
+        all_zero = True
+        zj = 0
+        cj = func_z[keys[j]]
+        for i in range(n):
+            xb = matriz[i][-1]
+            cx = func_z[xb]
+            zj +=matriz[i][j] * cx
+            if matriz[i][j] != 0:
+                all_zero = False
+        zj_cj.append(zj-cj)
+        if not all_zero and (zj-cj) <0 and min_val>(zj-cj):
+            min_val = zj - cj
             columna_pivote=j
     
     min_val = sys.float_info.max
