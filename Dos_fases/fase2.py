@@ -63,7 +63,7 @@ def actualizar_matriz(matriz, fila_p, columna_p, func_z,objetivo):
     # Normalizar fila pivote
     fila_pivote_normalizada = []
     for j in range(m-1):
-        valor = Fraction(matriz[fila_p][j], puntos[fila_p])
+        valor = matriz[fila_p][j] / puntos[fila_p]
         fila_pivote_normalizada.append(valor)
     
     xb = list(func_z.keys())[columna_p]

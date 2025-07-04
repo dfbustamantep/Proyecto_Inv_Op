@@ -1,14 +1,3 @@
-from fase1 import estado_primal 
-from fase2 import get_S_columns,get_estado_primal
-import fase1 as f1
-import fase2 as f2
-from presentacion import minimizar,maximizar, mostrar_fase1
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from None_fase import none_fase as nf, presentacion as prN
-
 # func_z = {
 #     "x1": 4,
 #     "x2": 3
@@ -176,15 +165,35 @@ from None_fase import none_fase as nf, presentacion as prN
 #     {"x1": 5, "x2": 2, "sign": ">=", "value": 200}    # R3
 # ]
 
+from presentacion import minimizar,maximizar, mostrar_fase1
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from None_fase import none_fase as nf, presentacion as prN
+
+# objetivo = "minimizar"
+# func_z = { # funciona
+#     "x1": 2000,"x2": 2000
+# }
+
+# s_a = [
+#     {"x1": 1, "x2": 2, "sign": ">=", "value": 80},
+#     {"x1": 3, "x2": 2, "sign": ">=", "value": 160},
+#     {"x1": 5, "x2": 2, "sign": ">=", "value": 200}
+# ]
 objetivo = "minimizar"
-func_z = { # funciona
-    "x1": 2000,"x2": 2000
+func_z = {
+    "x1": 3, "x2": 5, "x3": 2, "x4": 7, "x5": 1,
+    "x6": 4, "x7": 6, "x8": 3, "x9": 8, "x10": 2,
+    "x11": 9, "x12": 5, "x13": 1
 }
 
+# Restricciones
 s_a = [
-    {"x1": 1, "x2": 2, "sign": ">=", "value": 80},
-    {"x1": 3, "x2": 2, "sign": ">=", "value": 160},
-    {"x1": 5, "x2": 2, "sign": ">=", "value": 200}
+    {"x1": 1, "x2": 2, "x3": 1, "x4": 0, "x5": 3, "x6": 1, "x7": 0, "x8": 1, "x9": 2, "x10": 1, "x11": 0, "x12": 1, "x13": 1, "sign": "<=", "value": 100},
+    {"x1": 0, "x2": 1, "x3": 0, "x4": 3, "x5": 1, "x6": 1, "x7": 2, "x8": 1, "x9": 0, "x10": 3, "x11": 2, "x12": 1, "x13": 0, "sign": "<=", "value": 120},
+    {"x1": 2, "x2": 0, "x3": 3, "x4": 1, "x5": 1, "x6": 2, "x7": 1, "x8": 2, "x9": 1, "x10": 0, "x11": 1, "x12": 0, "x13": 1, "sign": ">=", "value": 150}
 ]
 
 sin_dos_fases = all(restriccion["sign"] == "<=" for restriccion in s_a)
