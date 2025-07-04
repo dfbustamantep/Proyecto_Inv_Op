@@ -7,9 +7,14 @@ class VentanaPrincipal(Tk):
     def __init__(self):
         super().__init__()
         self.title("Proyecto investigación de operaciones")
-        self.geometry("400x400")
+        self.geometry("500x400")
 
+        # Configurar estilo
+        self.configure(bg='#f0f0f0')
+        
         self.tipo_optimizacion = StringVar(value="")
+        
+
         # Etiqueta
         self.label_titulo = Label(self, text="Proyecto ingestigación de operaciones",font=("Arial",12,"bold"))
         self.label_titulo.pack(pady=10)
