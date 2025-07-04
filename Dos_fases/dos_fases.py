@@ -101,17 +101,7 @@ from None_fase import none_fase as nf, presentacion as prN
 #     {"x1": 1, "x2": 3, "sign": ">=", "value": 9},
 #     {"x1": 2, "x2": 1, "sign": "<=", "value": 8}
 # ]
-objetivo = "minimizar"
-func_z = { # funciona
-    "x1": 2000,
-    "x2": 2000
-}
 
-s_a = [
-    {"x1": 1, "x2": 2, "sign": ">=", "value": 80},
-    {"x1": 3, "x2": 2, "sign": ">=", "value": 160},
-    {"x1": 5, "x2": 2, "sign": ">=", "value": 200}
-]
 
 # objetivo = "maximizar" # funciona
 # func_z = { 
@@ -186,7 +176,16 @@ s_a = [
 #     {"x1": 5, "x2": 2, "sign": ">=", "value": 200}    # R3
 # ]
 
+objetivo = "minimizar"
+func_z = { # funciona
+    "x1": 2000,"x2": 2000
+}
 
+s_a = [
+    {"x1": 1, "x2": 2, "sign": ">=", "value": 80},
+    {"x1": 3, "x2": 2, "sign": ">=", "value": 160},
+    {"x1": 5, "x2": 2, "sign": ">=", "value": 200}
+]
 
 sin_dos_fases = all(restriccion["sign"] == "<=" for restriccion in s_a)
 
